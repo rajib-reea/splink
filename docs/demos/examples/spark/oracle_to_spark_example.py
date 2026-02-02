@@ -72,6 +72,7 @@ connection_properties = {
 }
 
 # Method 1: Load entire table
+# Simplest method, suitable for small to medium tables
 table_name = "YOUR_TABLE_NAME"
 df = spark.read.jdbc(
     url=oracle_jdbc_url,
@@ -79,18 +80,23 @@ df = spark.read.jdbc(
     properties=connection_properties
 )
 
+# Note: When loading full table, you may need to convert date types later
+# in PySpark using: df.withColumn("dob", F.col("date_of_birth").cast("string"))
+
 # Method 2: Load with SQL query (recommended for large tables)
 # This allows you to filter data at the source
+# Convert dates to strings in Oracle for better compatibility
 query = """
     (SELECT 
         person_id,
         first_name,
         surname,
-        date_of_birth as dob,
+        TO_CHAR(date_of_birth, 'YYYY-MM-DD') as dob,
         city,
         email
      FROM your_table_name
      WHERE active_flag = 'Y'
+       AND date_of_birth IS NOT NULL
     ) AS filtered_data
 """
 
@@ -102,6 +108,8 @@ df = spark.read.jdbc(
 
 # Method 3: Load with partitioning (recommended for very large tables)
 # This enables parallel reads from Oracle
+# Note: When using table name directly, you may need to convert date columns
+# in PySpark. For better performance, use a query with TO_CHAR instead.
 df = spark.read.jdbc(
     url=oracle_jdbc_url,
     table=table_name,
@@ -111,6 +119,9 @@ df = spark.read.jdbc(
     numPartitions=10,  # Number of parallel connections
     properties=connection_properties
 )
+
+# If date columns weren't converted in Oracle query, convert them now:
+# df = df.withColumn("dob", F.col("date_of_birth").cast("string"))
 
 # Display sample data
 print("\n=== Sample Data from Oracle ===")
@@ -122,10 +133,11 @@ df.printSchema()
 # ============================================================================
 
 # Ensure data types are compatible with Splink
-# Convert dates to strings if necessary
 from pyspark.sql import functions as F
 
-df = df.withColumn("dob", F.col("dob").cast("string"))
+# Note: If date wasn't converted to string in Oracle query, convert it here:
+# df = df.withColumn("dob", F.col("dob").cast("string"))
+# Or use TO_CHAR in Oracle query (recommended for better performance)
 
 # Handle NULL values if needed
 # df = df.fillna({"email": "", "city": ""})

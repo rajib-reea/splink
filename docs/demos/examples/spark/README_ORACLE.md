@@ -161,13 +161,20 @@ df = spark.read.jdbc(
 #### Filter Data at Source
 
 ```python
-# Push down filtering to Oracle
+# Push down filtering to Oracle and convert date types
 query = """
-    (SELECT id, first_name, surname, dob, city, email
+    (SELECT 
+        id, 
+        first_name, 
+        surname, 
+        TO_CHAR(date_of_birth, 'YYYY-MM-DD') as dob,
+        city, 
+        email
      FROM persons
      WHERE created_date >= TO_DATE('2020-01-01', 'YYYY-MM-DD')
        AND status = 'ACTIVE'
        AND first_name IS NOT NULL
+       AND date_of_birth IS NOT NULL
     ) AS filtered_data
 """
 
@@ -178,6 +185,13 @@ df = spark.read.jdbc(url=oracle_jdbc_url, table=query, properties=connection_pro
 - Reduces data transfer from Oracle to Spark
 - Leverages Oracle's query optimizer
 - Filters out unnecessary records early
+- Converts date types in Oracle (more efficient than PySpark conversion)
+
+**Note**: When loading entire tables, you may need to convert date columns in PySpark:
+```python
+df = df.withColumn("dob", F.col("date_of_birth").cast("string"))
+```
+However, converting dates in the Oracle query using `TO_CHAR` is more efficient.
 
 ### 2. Spark Configuration for Splink
 
