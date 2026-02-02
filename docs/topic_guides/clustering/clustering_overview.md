@@ -9,7 +9,7 @@ tags:
 
 This guide provides a comprehensive overview of how to create clusters in Splink, including information on blocking rules, scoring, and the clustering process.
 
-## Overview
+## Introduction
 
 Clustering is the final step in the Splink record linkage pipeline. After comparing record pairs and calculating match probabilities, clustering groups records together that represent the same real-world entity. The result is a cluster identifier that can be used to identify groups of duplicate or linked records.
 
@@ -355,7 +355,7 @@ linker.visualisations.cluster_studio_dashboard(
 
 If expected clusters are not formed, this may indicate:
 
-- **Threshold too high**: Increase the threshold to capture more matches
+- **Threshold too high**: Lower the threshold to capture more matches
 - **Blocking rules too strict**: Add more blocking rules to ensure potential matches are compared
 - **Model parameters not well-estimated**: Retrain your model or use different training data
 
