@@ -338,7 +338,7 @@ For more information, see the [Graph Metrics topic guide](../evaluation/clusters
 
 If you see unexpectedly large clusters, this may indicate:
 
-- **Threshold too low**: Lower the threshold to reduce false positive links
+- **Threshold too low**: Raise the threshold to reduce false positive links
 - **Blocking rules too loose**: Tighten blocking rules to reduce spurious comparisons
 - **Data quality issues**: Clean your data to reduce false matches
 
